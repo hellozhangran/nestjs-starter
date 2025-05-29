@@ -1,13 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserEntity } from './entities/user.entity';
-import {  Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 @Injectable()
 export class UserService {
-
   constructor(
     @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>
+    private readonly userRepository: Repository<UserEntity>,
   ) {
     // 初始化
   }
@@ -20,9 +19,8 @@ export class UserService {
     return this.userRepository.save(user);
   }
   // 定义一个类型，至少包含pageNum, pageSize
-  
 
-  async findAll(query: any): Promise<{ list: UserEntity[], total: number }> {
+  async findAll(query: any): Promise<{ list: UserEntity[]; total: number }> {
     const { pageNum = 1, pageSize = 10, ...rest } = query;
     console.log('findAll', pageNum, pageSize, rest);
     const skip = (pageNum - 1) * pageSize;
@@ -49,7 +47,7 @@ export class UserService {
     }
     const existingUser = await this.userRepository.findOne({ where: { id } });
     if (!existingUser) {
-      throw new HttpException('用户不存在', HttpStatus.NOT_FOUND); 
+      throw new HttpException('用户不存在', HttpStatus.NOT_FOUND);
     }
     await this.userRepository.update(id, user);
     const updatedUser = await this.userRepository.findOne({ where: { id } });
