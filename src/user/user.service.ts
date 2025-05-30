@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserEntity } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateUserDto } from './dto/create-user.dto';
 @Injectable()
 export class UserService {
   constructor(
@@ -9,6 +10,27 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
   ) {
     // 初始化
+  }
+
+  async register(user: Partial<CreateUserDto>) {
+    // 添加参数验证
+    if (!user) {
+      throw new HttpException('用户数据不能为空', HttpStatus.BAD_REQUEST);
+    }
+
+    const { name } = user;
+    if (!name) {
+      throw new HttpException('用户名不能为空', HttpStatus.BAD_REQUEST);
+    }
+
+    const existingUser = await this.userRepository.findOne({ where: { name } });
+    if (existingUser) {
+      throw new HttpException('用户已存在', HttpStatus.BAD_REQUEST);
+    }
+
+    const newUser = this.userRepository.create(user);
+    await this.userRepository.save(newUser);
+    return this.userRepository.findOne({ where: { name } });
   }
 
   async create(user: Partial<UserEntity>): Promise<UserEntity> {

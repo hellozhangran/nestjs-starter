@@ -1,5 +1,5 @@
-import { Column, Entity, IsNull, PrimaryGeneratedColumn } from 'typeorm';
-
+import { BeforeInsert, Column, Entity, IsNull, PrimaryGeneratedColumn } from 'typeorm';
+import * as bcrypt from 'bcryptjs';
 @Entity('user')
 export class UserEntity {
   @PrimaryGeneratedColumn()
@@ -32,4 +32,15 @@ export class UserEntity {
 
   @Column({ type: 'varchar', nullable: true, default: '' })
   avatar: string;
+
+  @Column({ select: false }) // 查询操作不返回密码
+  password: string;
+
+  @Column({ type: 'simple-enum', enum: ['root', 'author', 'visitor'], default: 'visitor' })
+  role: string;
+
+  @BeforeInsert() 
+  async encryptPassword() {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
 }

@@ -5,28 +5,19 @@ import { UserModule } from './user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import config from '../config/env';
+import databaseConfig from './config/mysql.config';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [config.path],
+      envFilePath: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env',
+      load: [databaseConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        type: 'mysql',
-        entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USER'),
-        password: configService.get<string>('DB_PWD'),
-        database: configService.get<string>('DB_DATABASE'),
-        timezone: '+08:00',
-        synchronize: true,
-        logging: true,
-      }),
+      useFactory: (configService: ConfigService) => 
+        configService.get('database')!,
     }),
     UserModule,
   ],
