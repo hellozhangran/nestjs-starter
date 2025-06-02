@@ -1,5 +1,6 @@
-import { BeforeInsert, Column, Entity, IsNull, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, IsNull, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
+import { PostEntity } from 'src/blog/post/entities/post.entity';
 @Entity('user')
 export class UserEntity {
   @PrimaryGeneratedColumn()
@@ -38,6 +39,9 @@ export class UserEntity {
 
   @Column({ type: 'simple-enum', enum: ['root', 'author', 'visitor'], default: 'visitor' })
   role: string;
+
+  @OneToMany(() => PostEntity, (post) => post.author)
+  posts: PostEntity[]
 
   @BeforeInsert() 
   async encryptPassword() {

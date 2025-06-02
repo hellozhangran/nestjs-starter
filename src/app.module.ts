@@ -5,6 +5,9 @@ import { UserModule } from './user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { PostModule } from './blog/post/post.module';
+import { CategoryModule } from './blog/category/category.module';
+import { TagModule } from './blog/tag/tag.module';
 
 import databaseConfig from './config/mysql.config';
 @Module({
@@ -22,6 +25,9 @@ import databaseConfig from './config/mysql.config';
     }),
     UserModule,
     AuthModule,
+    PostModule,
+    CategoryModule,
+    TagModule,
   ],
   controllers: [AppController],
   providers: [AppService],
