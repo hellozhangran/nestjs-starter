@@ -26,7 +26,7 @@ export class PostController {
 
   @Get('findAll')
   @UseGuards(AuthGuard('jwt'))
-  findAll(@Query() params: { pageNum: number, pageSize: number }) {
+  findAll(@Query() params: any) {
     return this.postService.findAll(params);
   }
 

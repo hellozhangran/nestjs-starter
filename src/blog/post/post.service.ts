@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { PostEntity } from './entities/post.entity';
@@ -49,27 +49,32 @@ export class PostService {
     };
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     // 查询单个文章
-    return this.postRepository.findOne({
+    const post = await this.postRepository.findOne({
       where: { id },
       relations: ['category', 'tags', 'author'],
     });
+    if (!post) {
+      throw new NotFoundException('文章不存在');
+    }
+    return post.toResponseObject();
   }
   
-  async findAll(params) {
+  async findAll(params: any) {
     // 查询所有文章
     const builder = this.postRepository.createQueryBuilder('post');
       builder.leftJoinAndSelect('post.category', 'category');
       builder.leftJoinAndSelect('post.tags', 'tags');
       builder.leftJoinAndSelect('post.author', 'author')
       .orderBy('post.create_time', 'DESC');
-
     builder.where('1=1');
 
     const total = await builder.getCount();
 
-    const { pageNum, pageSize, ...restParams } = params;
+    const { pageNum, pageSize } = params;
+
+    console.log(11111111, pageNum, pageSize, total);
 
     builder.limit(pageSize);
     builder.offset((pageNum - 1) * pageSize);

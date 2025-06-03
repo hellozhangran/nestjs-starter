@@ -80,9 +80,9 @@ export class PostEntity {
   toResponseObject(): ResponsePostDto {
     let res: ResponsePostDto = {
       ...this,
-      tags: this.tags.map(tag => tag.name),
-      category: this.category.name,
-      author: this.author.name,
+      tags: this.tags?.map(tag => tag.name) || [],
+      category: this.category?.name || '',
+      author: this.author?.name || '',
     };
     return res;
   }
