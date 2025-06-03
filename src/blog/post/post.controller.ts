@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { RoleGuard, Roles } from 'src/auth/role.guard';
@@ -25,10 +25,21 @@ export class PostController {
   }
 
   @Get('findAll')
-  @Roles('root', 'author', 'visitor')
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
-  findAll() {
-    return this.postService.findAll();
+  @UseGuards(AuthGuard('jwt'))
+  findAll(@Query() params: { pageNum: number, pageSize: number }) {
+    return this.postService.findAll(params);
+  }
+
+  @Get('findByCategory/:id')
+  @UseGuards(AuthGuard('jwt'))
+  findByCategory(@Param('id') id: string) {
+    return this.postService.findByCategory(+id);
+  }
+
+  @Get('findByTag/:id')
+  @UseGuards(AuthGuard('jwt'))
+  findByTag(@Param('id') id: string) {
+    return this.postService.findByTag(+id);
   }
   
 }

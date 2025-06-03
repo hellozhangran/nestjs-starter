@@ -25,11 +25,6 @@ export class UserController {
     return this.userService.register(createUserDto);
   }
 
-  @Post('create')
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
-
   @UseGuards(AuthGuard('jwt'))
   @Get('list')
   findAll(@Query() query: any) {

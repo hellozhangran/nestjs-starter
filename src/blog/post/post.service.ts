@@ -2,10 +2,11 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { PostEntity } from './entities/post.entity';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryEntity } from '../category/entities/category.entity';
 import { TagEntity } from '../tag/entities/tag.entity';
+import { ResponsePostDto } from './dto/response-post.dto';
 
 
 @Injectable()
@@ -43,12 +44,62 @@ export class PostService {
     return created.id;
   }
 
-  findAll() {
-    return `This action returns all post`;
+  findOne(id: number) {
+    // 查询单个文章
+    return this.postRepository.findOne({
+      where: { id },
+      relations: ['category', 'tags', 'author'],
+    });
+  }
+  
+  async findAll(params) {
+    // 查询所有文章
+    const builder = this.postRepository.createQueryBuilder('post');
+      builder.leftJoinAndSelect('post.category', 'category');
+      builder.leftJoinAndSelect('post.tags', 'tags');
+      builder.leftJoinAndSelect('post.author', 'author')
+      .orderBy('post.create_time', 'DESC');
+
+    builder.where('1=1');
+
+    const total = await builder.getCount();
+
+    const { pageNum, pageSize, ...restParams } = params;
+
+    builder.limit(pageSize);
+    builder.offset((pageNum - 1) * pageSize);
+
+    let many = await builder.getMany();
+    const list: ResponsePostDto[] = many.map(item => item.toResponseObject());
+    return { list, total };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  async findByCategory(id: number) {
+    // 查询分类下的所有文章
+    const builder = this.postRepository.createQueryBuilder('post');
+      builder.leftJoinAndSelect('post.category', 'category');
+      builder.leftJoinAndSelect('post.tags', 'tags');
+      builder.leftJoinAndSelect('post.author', 'author')
+      .orderBy('post.create_time', 'DESC');
+
+    builder.where('category.id = :id', { id });
+    const many = await builder.getMany();
+    const list: ResponsePostDto[] = many.map(item => item.toResponseObject());
+    return list;
+  }
+
+  async findByTag(id: number) {
+    // 查询标签下的所有文章  
+    const builder = this.postRepository.createQueryBuilder('post');
+      builder.leftJoinAndSelect('post.category', 'category');
+      builder.leftJoinAndSelect('post.tags', 'tags');
+      builder.leftJoinAndSelect('post.author', 'author')
+      .orderBy('post.create_time', 'DESC');
+
+    builder.where('tags.id = :id', { id });
+    const many = await builder.getMany();
+    const list: ResponsePostDto[] = many.map(item => item.toResponseObject());
+    return list;
   }
 
 }

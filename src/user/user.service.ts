@@ -33,15 +33,7 @@ export class UserService {
     return this.userRepository.findOne({ where: { name } });
   }
 
-  async create(user: Partial<UserEntity>): Promise<UserEntity> {
-    const { name } = user;
-    if (!name) {
-      throw new HttpException('用户名不能为空', HttpStatus.BAD_REQUEST);
-    }
-    return this.userRepository.save(user);
-  }
   // 定义一个类型，至少包含pageNum, pageSize
-
   async findAll(query: any): Promise<{ list: UserEntity[]; total: number }> {
     const { pageNum = 1, pageSize = 10, ...rest } = query;
     console.log('findAll', pageNum, pageSize, rest);

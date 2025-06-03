@@ -2,6 +2,7 @@ import { UserEntity } from "src/user/entities/user.entity";
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { CategoryEntity } from "src/blog/category/entities/category.entity";
 import { TagEntity } from "src/blog/tag/entities/tag.entity";
+import { ResponsePostDto } from "../dto/response-post.dto";
 
 @Entity('post')
 export class PostEntity {
@@ -42,7 +43,6 @@ export class PostEntity {
   // 状态
   @Column({type: 'simple-enum', enum: ['draft', 'published', 'deleted'], default: 'draft'})
   status: string;
-  
   // 作者
   @ManyToOne(() => UserEntity, (user) => user.posts)
   @JoinColumn({ name: 'author_id' })
@@ -75,4 +75,15 @@ export class PostEntity {
 
   @Column({type: 'datetime', default: null, name: 'publish_time'})
   publishTime: Date;
+
+  // 转换为响应对象
+  toResponseObject(): ResponsePostDto {
+    let res: ResponsePostDto = {
+      ...this,
+      tags: this.tags.map(tag => tag.name),
+      category: this.category.name,
+      author: this.author.name,
+    };
+    return res;
+  }
 }
