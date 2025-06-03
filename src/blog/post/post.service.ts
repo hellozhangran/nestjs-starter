@@ -36,12 +36,17 @@ export class PostService {
     // 不需要先查询 category 和 tags
     const post = this.postRepository.create({
       ...createPostDto,
+      author: user,
       category: { id: createPostDto.categoryId },  // 直接用对象字面量，只提供 id
       tags: createPostDto.tagIds?.map(id => ({ id })) || []  // 同上
     });
 
-    const  created = await this.postRepository.save(post);
-    return created.id;
+    const result = await this.postRepository.save(post);
+    return {
+      code: 200,
+      message: '创建成功',
+      data: result.id,
+    };
   }
 
   findOne(id: number) {
