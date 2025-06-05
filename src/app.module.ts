@@ -8,21 +8,23 @@ import { AuthModule } from './auth/auth.module';
 import { PostModule } from './blog/post/post.module';
 import { CategoryModule } from './blog/category/category.module';
 import { TagModule } from './blog/tag/tag.module';
-
+import redisConfig from './config/redis.config';
 import databaseConfig from './config/mysql.config';
+import { CommonModule } from './modules/common/common.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env',
-      load: [databaseConfig],
+      load: [databaseConfig, redisConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => 
-        configService.get('database')!,
+        configService.get('mysql')!,
     }),
+    CommonModule,
     UserModule,
     AuthModule,
     PostModule,
