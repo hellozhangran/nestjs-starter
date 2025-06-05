@@ -22,23 +22,11 @@ export class AppController {
   // 获取redis key 的 value
   @Get('redis/get')
   async getRedis(@Query() query: any): Promise<any> {
-    try {
-      const { key } = query;
-      console.log('开始处理 Redis GET 请求，key:', key);
-      
-      if (!key) {
-        console.log('错误：key 参数为空');
-        return { error: 'key parameter is required' };
-      }
-      
-      console.log('准备调用 redisService.get');
-      const res = await this.redisService.get(key);
-      console.log('Redis GET 成功，结果:', res);
-      return res;
-    } catch (error) {
-      console.error('Redis GET 错误:', error);
-      throw error;
+    const { key } = query;
+    if (!key) {
+      return { error: 'key parameter is required' };
     }
+    return await this.redisService.get(key);
   }
 
   // 获取redis基本信息

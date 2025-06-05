@@ -1,3 +1,5 @@
+// cursor: disable
+
 import {
     Injectable,
     NestInterceptor,
@@ -20,3 +22,5 @@ import {
       );
     }
   }
+
+
